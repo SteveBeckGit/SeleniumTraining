@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using AventStack.ExtentReports.MarkupUtils;
 using ExampleTraining.Applications.Models;
 using ExampleTraining.Applications.XYZBank;
 using ExampleTraining.Reporting;
 using ExampleTraining.TestSuites;
+using ExampleTraining.Utilties;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
@@ -17,9 +19,7 @@ namespace ExampleTraining
     [Parallelizable(ParallelScope.All)]
     public class Tests : TestBase
     {
-
-
-        [ThreadStatic] public static IWebDriver Driver;
+        
         [SetUp]
         public void TestSetup()
         {           
@@ -33,6 +33,8 @@ namespace ExampleTraining
         [TestCase("Harry Potter","1004","404")]
         public void PageObjectModelTest(string customer, string accountID, string amount) 
         {
+
+
             DepositModel deposit = new DepositModel() 
             {
                 Username = customer,
@@ -45,13 +47,20 @@ namespace ExampleTraining
             XYZBankApplication bankApplication = new XYZBankApplication(Driver);
             bankApplication.loginPage.Login(deposit.Username);
             bankApplication.accountPage.DepositAndValidate(deposit);
-        }      
-
-
-        [TearDown]
-        public void TestCleanup()
-        {
-            Driver.Dispose();
         }
+
+        public static List<DepositModel> deposits = DepositModel.MockData();
+        [TestCaseSource(nameof(deposits))]
+        public void IterativeTest(DepositModel deposit)
+        {
+            Reporter.StepInfo(JsonConvert.SerializeObject(deposit), CodeLanguage.Json);
+
+            XYZBankApplication bankApplication = new XYZBankApplication(Driver);
+            bankApplication.loginPage.Login(deposit.Username);
+            bankApplication.accountPage.DepositAndValidate(deposit);
+        }
+
+
+
     }
 }

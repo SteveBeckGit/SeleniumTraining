@@ -32,7 +32,6 @@ namespace ExampleTraining.Applications.XYZBank.Pages
             SelectFromDropDown(customerSelect, username);
             Click(LoginBtn);
 
-            if (username.Contains("Harry")) throw new Exception("Lol failed");
 
             Assert.True(ValidateElementDisplayed(welcomeMessage(username)), "Dashboard not loaded");
             StepPassedWithScreenshot("Login Success!");
