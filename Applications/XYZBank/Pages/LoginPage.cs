@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using ExampleTraining.Reporting;
+using ExampleTraining.Selenium;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
@@ -9,16 +11,15 @@ using System.Threading.Tasks;
 
 namespace ExampleTraining.Applications.XYZBank.Pages
 {
-    public class LoginPage
+    public class LoginPage : AbstractPage
     {
         By welcomeMessage(string username) => By.XPath("//strong[contains(text(),'Welcome')]/span[text()='" + username + "']");
         By customerLoginBtn = By.XPath("//button[text()='Customer Login']");
         By customerSelect = By.Id("userSelect");
         By LoginBtn = By.XPath("//button[text()='Login']");
 
-        private IWebDriver Driver { get; set; }
 
-        public LoginPage(IWebDriver _driver) 
+        public LoginPage(IWebDriver _driver) : base(_driver)
         {
             Driver = _driver;
         }
@@ -27,19 +28,14 @@ namespace ExampleTraining.Applications.XYZBank.Pages
         {
             Driver.Url = "http://www.way2automation.com/angularjs-protractor/banking/#/login";
 
-            WebDriverWait wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(5));
-            IWebElement loginBtn = wait.Until(drv => drv.FindElement(customerLoginBtn));
+            Click(customerLoginBtn);          
+            SelectFromDropDown(customerSelect, username);
+            Click(LoginBtn);
 
-            loginBtn.Click();
+            if (username.Contains("Harry")) throw new Exception("Lol failed");
 
-            var ele = wait.Until(drv => drv.FindElement(customerSelect));
-            SelectElement selectElement = new SelectElement(ele);
-            selectElement.SelectByText(username);
-
-            IWebElement realLoginBtn = wait.Until(drv => drv.FindElement(LoginBtn));
-            realLoginBtn.Click();
-
-            Assert.True(wait.Until(drv => drv.FindElement(welcomeMessage(username)).Displayed), "Dashboard not loaded");
+            Assert.True(ValidateElementDisplayed(welcomeMessage(username)), "Dashboard not loaded");
+            StepPassedWithScreenshot("Login Success!");
 
         }
     }

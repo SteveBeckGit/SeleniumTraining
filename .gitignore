@@ -2,5 +2,7 @@
 bin/
 obj/
 .vs/
-*/Reports/
+Reports/
 global.json
+*/Results/
+TestResults/
